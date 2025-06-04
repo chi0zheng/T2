@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>T2平面圖</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f0f0f0;
+    }
+
+    .map-container {
+      position: relative;
+      background: url('平面圖.png') no-repeat;
+      background-size: cover;
+      width: 1280px;
+      height: 720px;
+      margin: 0 auto;
+    }
+
+    .marker {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: rgba(255, 0, 0, 0.6);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .tooltip {
+      position: absolute;
+      display: none;
+      z-index: 99;
+    }
+
+    .tooltip img {
+      width: 30vw;
+      border: 10px solid white;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      border-radius: 10px;
+    }
+
+    .marker:hover + .tooltip {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="map-container">
+  <!-- Marker 1 -->
+  <div class="marker" style="top: 20px; left: 40px;"></div>
+  <div class="tooltip" style="top: 20px; left: 70px;">
+    <img src="img1.jpg" alt="店家1實景">
+  </div>
+
+  <!-- Marker 2 -->
+  <div class="marker" style="top: 20px; left: 140px;"></div>
+  <div class="tooltip" style="top: 20px; left: 170px;">
+    <img src="img2.jpg" alt="店家2實景">
+  </div>
+
+  <!-- Marker 3 -->
+  <div class="marker" style="top: 20px; left: 240px;"></div>
+  <div class="tooltip" style="top: 20px; left: 270px;">
+    <img src="img3.jpg" alt="店家3實景">
+  </div>
+
+  <!-- 以此類推，加入更多 marker -->
+</div>
+
+</body>
+</html>
