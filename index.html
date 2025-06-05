@@ -6,12 +6,13 @@
   <title>T2機場平面圖互動版</title>
   <style>
     html, body {
-      margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #333;
+      margin: 0; padding: 0; height: 100%; background-color: #333;
       -webkit-user-select:none;
       -moz-user-select:none;
       -ms-user-select:none;
       user-select:none;
       font-family: sans-serif;
+      overflow: hidden;
     }
     .map-wrapper {
       width: 100%; height: 100%; overflow: hidden; position: relative; background: #333;
@@ -46,7 +47,10 @@
       border: 6px solid white;
       box-shadow: 0 0 12px rgba(0,0,0,0.6);
       border-radius: 8px;
-      z-index: 30;
+      z-index: 999;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
     .popup img {
       width: 100%; height: auto; border-radius: 8px 8px 0 0;
@@ -62,9 +66,9 @@
       top: 0;
       left: 0;
       width: 100%;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       padding: 10px;
-      z-index: 100;
+      z-index: 200;
       box-sizing: border-box;
     }
     .search-bar label {
@@ -76,55 +80,64 @@
   </style>
 </head>
 <body>
-<div class="search-bar">
-  <label>搜尋店名：</label>
-  <input type="text" id="searchInput" placeholder="輸入關鍵字，如 書店、菸酒、SK" />
-</div>
-
 <div class="map-wrapper" id="mapWrapper">
   <div class="map-container" id="mapContainer">
     <img src="平面圖.png" alt="地圖圖" />
-    <div class="dot" style="top:4.86%; left:3.13%" data-img="SG書店.jpg" data-desc="Day2-六部 SG 書店(桃禮記)")"></div>
-    <div class="dot" style="top:4.86%; left:5.86%" data-img="SI樂高.jpg" data-desc="Day1-六部 SI 樂高")"></div>
-    <div class="dot" style="top:4.86%; left:8.20%" data-img="SFKT.jpg" data-desc="Day2-三部 SF KITT")"></div>
-    <div class="dot" style="top:4.86%; left:13.28%" data-img="SW.jpg" data-desc="Day1-三部 SW 故宮")"></div>
-    <div class="dot" style="top:4.86%; left:15.63%" data-img="SI食品.jpg" data-desc="Day1-三部 SI 食品")"></div>
-    <div class="dot" style="top:4.86%; left:17.97%" data-img="SI菸酒.jpg" data-desc="Day1-三部 SI 菸酒")"></div>
-    <div class="dot" style="top:4.86%; left:25.78%" data-img="SC3C.jpg" data-desc="Day2-六部 SC 野獸國+3C")"></div>
-    <div class="dot" style="top:4.86%; left:28.28%" data-img="SI旅精.jpg" data-desc="Day1-六部 SI 旅遊精品")"></div>
-    <div class="dot" style="top:4.86%; left:31.09%" data-img="SF菸酒.jpg" data-desc="Day2-三部 SF 菸酒")"></div>
-    <div class="dot" style="top:4.86%; left:38.28%" data-img="SK.jpg" data-desc="Day2-二部 SK 藥妝")"></div>
-    <div class="dot" style="top:4.86%; left:40.99%" data-img="SH香化.jpg" data-desc="Day2-二部 SH 香化")"></div>
-    <div class="dot" style="top:4.86%; left:68.98%" data-img="SJ菸酒.jpg" data-desc="Day2-三部 SJ 菸酒")"></div>
-    <div class="dot" style="top:4.86%; left:74.22%" data-img="SC運動.jpeg" data-desc="Day2-六部 SC 運動休閒")"></div>
-    <div class="dot" style="top:4.86%; left:76.56%" data-img="SM3C.jpg" data-desc="Day1-六部 SM 3C店")"></div>
-    <div class="dot" style="top:4.86%; left:79.30%" data-img="SM書店.jpg" data-desc="Day1-六部 SM 書店")"></div>
-    <div class="dot" style="top:4.86%; left:83.98%" data-img="SL.jpeg" data-desc="Day2-二部 SL 藥妝")"></div>
-    <div class="dot" style="top:4.86%; left:86.72%" data-img="SH菸酒.jpeg" data-desc="Day2-三部 SH 菸酒")"></div>
-    <div class="dot" style="top:4.86%; left:91.80%" data-img="SR.jpeg" data-desc="Day1-三部 SR 台灣菸酒館")"></div>
-    <div class="dot" style="top:4.86%; left:94.14%" data-img="SN.jpg" data-desc="Day1-三部 SN 史博+文萃市集")"></div>
+    <div class="search-bar">
+      <label>搜尋店名：</label>
+      <input type="text" id="searchInput" placeholder="輸入關鍵字，如 書店、菸酒、SK" />
+    </div>
   </div>
 </div>
-
 <div class="popup" id="popup">
   <img src="" id="popup-img" alt="浮窗圖片">
   <p id="popup-desc"></p>
 </div>
-
 <script>
   const popup = document.getElementById('popup');
   const popupImg = document.getElementById('popup-img');
   const popupDesc = document.getElementById('popup-desc');
   const searchInput = document.getElementById('searchInput');
   const mapContainer = document.getElementById('mapContainer');
-  const dots = document.querySelectorAll('.dot');
+  const mapWrapper = document.getElementById('mapWrapper');
 
-  // 點擊顯示浮窗
+  const dotsData = [
+    {top:'4.86%', left:'3.13%', img:'SG書店.jpg', desc:'Day2-六部 SG 書店(桃禮記)'},
+    {top:'4.86%', left:'5.86%', img:'SI樂高.jpg', desc:'Day1-六部 SI 樂高'},
+    {top:'4.86%', left:'8.20%', img:'SFKT.jpg', desc:'Day2-三部 SF KITT'},
+    {top:'4.86%', left:'13.28%', img:'SW.jpg', desc:'Day1-三部 SW 故宮'},
+    {top:'4.86%', left:'15.63%', img:'SI食品.jpg', desc:'Day1-三部 SI 食品'},
+    {top:'4.86%', left:'17.97%', img:'SI菸酒.jpg', desc:'Day1-三部 SI 菸酒'},
+    {top:'4.86%', left:'25.78%', img:'SC3C.jpg', desc:'Day2-六部 SC 野獸國+3C'},
+    {top:'4.86%', left:'28.28%', img:'SI旅精.jpg', desc:'Day1-六部 SI 旅遊精品'},
+    {top:'4.86%', left:'31.09%', img:'SF菸酒.jpg', desc:'Day2-三部 SF 菸酒'},
+    {top:'4.86%', left:'38.28%', img:'SK.jpg', desc:'Day2-二部 SK 藥妝'},
+    {top:'4.86%', left:'40.99%', img:'SH香化.jpg', desc:'Day2-二部 SH 香化'},
+    {top:'4.86%', left:'68.98%', img:'SJ菸酒.jpg', desc:'Day2-三部 SJ 菸酒'},
+    {top:'4.86%', left:'74.22%', img:'SC運動.jpeg', desc:'Day2-六部 SC 運動休閒'},
+    {top:'4.86%', left:'76.56%', img:'SM3C.jpg', desc:'Day1-六部 SM 3C店'},
+    {top:'4.86%', left:'79.30%', img:'SM書店.jpg', desc:'Day1-六部 SM 書店'},
+    {top:'4.86%', left:'83.98%', img:'SL.jpeg', desc:'Day2-二部 SL 藥妝'},
+    {top:'4.86%', left:'86.72%', img:'SH菸酒.jpeg', desc:'Day2-三部 SH 菸酒'},
+    {top:'4.86%', left:'91.80%', img:'SR.jpeg', desc:'Day1-三部 SR 台灣菸酒館'},
+    {top:'4.86%', left:'94.14%', img:'SN.jpg', desc:'Day1-三部 SN 史博+文萃市集'},
+  ];
+
+  dotsData.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'dot';
+    el.style.top = d.top;
+    el.style.left = d.left;
+    el.dataset.img = d.img;
+    el.dataset.desc = d.desc;
+    mapContainer.appendChild(el);
+  });
+
+  const dots = document.querySelectorAll('.dot');
   dots.forEach(dot => {
     dot.addEventListener('click', (e) => {
       const imgSrc = dot.dataset.img;
       const desc = dot.dataset.desc;
-
       const keyword = searchInput.value.trim();
       if (keyword.length > 0) {
         const regex = new RegExp(`(${keyword})`, 'gi');
@@ -134,17 +147,9 @@
       }
       popupImg.src = imgSrc;
       popup.style.display = 'block';
-
-      let x = e.clientX + 10;
-      let y = e.clientY + 10;
-      if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 10;
-      if (y + popup.offsetHeight > window.innerHeight) y = e.clientY - popup.offsetHeight - 10;
-      popup.style.left = x + 'px';
-      popup.style.top = y + 'px';
     });
   });
 
-  // 關閉浮窗
   window.addEventListener('click', e => {
     if (!e.target.classList.contains('dot') && !popup.contains(e.target)) {
       popup.style.display = 'none';
@@ -154,29 +159,21 @@
     if (e.key === 'Escape') popup.style.display = 'none';
   });
 
-  // 搜尋功能
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim().toLowerCase();
     dots.forEach(dot => {
       const desc = dot.dataset.desc.toLowerCase();
-      if (query && desc.includes(query)) {
-        dot.style.display = 'block';
-      } else {
-        dot.style.display = query ? 'none' : 'block';
-      }
+      dot.style.display = query && !desc.includes(query) ? 'none' : 'block';
     });
   });
 
-  // 手勢縮放 (觸控裝置)
   let scale = 1;
   let posX = 0, posY = 0;
   let startDist = null;
   let lastTouch = [];
-
   const updateTransform = () => {
     mapContainer.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
-
   mapContainer.addEventListener('touchstart', (e) => {
     if (e.touches.length === 2) {
       startDist = Math.hypot(
@@ -186,7 +183,6 @@
     }
     lastTouch = [...e.touches];
   });
-
   mapContainer.addEventListener('touchmove', (e) => {
     if (e.touches.length === 2 && startDist) {
       const newDist = Math.hypot(
@@ -209,6 +205,5 @@
     e.preventDefault();
   }, { passive: false });
 </script>
-
 </body>
 </html>
