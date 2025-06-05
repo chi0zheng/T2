@@ -6,67 +6,30 @@
   <title>T2機場平面圖互動版</title>
   <style>
     html, body {
-      margin: 0; padding: 0; height: 100%;
-      background-color: #333;
-      -webkit-user-select: none;
-      user-select: none;
-      overflow: hidden;
+      margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #333;
+      -webkit-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select:none;
+      user-select:none;
+      font-family: sans-serif;
     }
-
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .search-bar {
-      padding: 10px;
-      background: #222;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: white;
-    }
-
-    .search-bar input {
-      flex: 1;
-      padding: 8px;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: none;
-    }
-
     .map-wrapper {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-      background: #333;
+      width: 100%; height: 100%; overflow: hidden; position: relative; background: #333;
       touch-action: none;
     }
-
-    .map-inner {
-      position: absolute;
-      top: 0; left: 0;
-      transform-origin: top left;
-    }
-
     .map-container {
+      position: absolute;
       width: 1280px;
       height: 720px;
-      position: relative;
+      transform-origin: top left;
       background: #222;
     }
-
     .map-container img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      pointer-events: none;
+      width: 100%; height: 100%; pointer-events: none; display: block;
     }
-
     .dot {
       position: absolute;
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       background: rgba(255, 0, 0, 0.6);
       border-radius: 50%;
       transform: translate(-50%, -50%);
@@ -74,73 +37,53 @@
       border: 2px solid white;
       z-index: 10;
     }
-
     .popup {
       position: fixed;
       display: none;
-      width: 90vw;
-      max-width: 400px;
+      width: 80vw;
+      max-width: 500px;
+      background: white;
       border: 6px solid white;
       box-shadow: 0 0 12px rgba(0,0,0,0.6);
-      background-color: white;
-      z-index: 100;
-      text-align: center;
       border-radius: 8px;
+      z-index: 30;
     }
-
     .popup img {
-      width: 100%;
-      height: auto;
-      border-radius: 4px 4px 0 0;
+      width: 100%; height: auto; border-radius: 8px 8px 0 0;
     }
-
     .popup p {
-      margin: 0;
-      padding: 12px;
+      margin: 0; padding: 12px;
       font-size: clamp(14px, 2vw, 18px);
-      background: #f4f4f4;
-      color: #333;
+      background: #f4f4f4; color: #333;
       border-radius: 0 0 8px 8px;
     }
-
-    .zoom-controls {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 50;
+    .search-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      z-index: 100;
+      box-sizing: border-box;
     }
-
-    .zoom-controls button {
-      margin: 5px;
-      padding: 8px 12px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 4px;
-      background: white;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
-      cursor: pointer;
+    .search-bar label {
+      margin-right: 10px;
     }
-
-    @media (max-width: 768px) {
-      .dot { width: 20px; height: 20px; }
-      .map-container {
-        width: 100vw;
-        height: calc(100vw * 720 / 1280);
-      }
+    .search-bar input {
+      padding: 6px; font-size: 16px; width: 60%;
     }
   </style>
 </head>
 <body>
-
 <div class="search-bar">
   <label>搜尋店名：</label>
   <input type="text" id="searchInput" placeholder="輸入關鍵字，如 書店、菸酒、SK" />
 </div>
 
 <div class="map-wrapper" id="mapWrapper">
-  <div class="map-inner" id="mapInner">
-    <div class="map-container" id="mapContainer">
-      <img src="平面圖.png" alt="平面圖" draggable="false" />
+  <div class="map-container" id="mapContainer">
+    <img src="平面圖.png" alt="地圖圖" />
     <div class="dot" style="top:4.86%; left:3.13%" data-img="SG書店.jpg" data-desc="Day2-六部 SG 書店(桃禮記)")"></div>
     <div class="dot" style="top:4.86%; left:5.86%" data-img="SI樂高.jpg" data-desc="Day1-六部 SI 樂高")"></div>
     <div class="dot" style="top:4.86%; left:8.20%" data-img="SFKT.jpg" data-desc="Day2-三部 SF KITT")"></div>
@@ -160,119 +103,111 @@
     <div class="dot" style="top:4.86%; left:86.72%" data-img="SH菸酒.jpeg" data-desc="Day2-三部 SH 菸酒")"></div>
     <div class="dot" style="top:4.86%; left:91.80%" data-img="SR.jpeg" data-desc="Day1-三部 SR 台灣菸酒館")"></div>
     <div class="dot" style="top:4.86%; left:94.14%" data-img="SN.jpg" data-desc="Day1-三部 SN 史博+文萃市集")"></div>
-    </div>
   </div>
 </div>
 
 <div class="popup" id="popup">
-  <img id="popup-img" src="" alt="圖片" />
+  <img src="" id="popup-img" alt="浮窗圖片">
   <p id="popup-desc"></p>
 </div>
 
-<div class="zoom-controls">
-  <button id="zoomInBtn">＋ 放大</button>
-  <button id="zoomOutBtn">－ 縮小</button>
-  <button id="resetBtn">重置</button>
-</div>
-
 <script>
-  const mapInner = document.getElementById('mapInner');
   const popup = document.getElementById('popup');
   const popupImg = document.getElementById('popup-img');
   const popupDesc = document.getElementById('popup-desc');
+  const searchInput = document.getElementById('searchInput');
+  const mapContainer = document.getElementById('mapContainer');
+  const dots = document.querySelectorAll('.dot');
 
-  // 放大縮小邏輯
-  let scale = 1, min = 0.5, max = 3;
-  let offsetX = 0, offsetY = 0;
-
-  function updateTransform() {
-    mapInner.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-  }
-
-  document.getElementById('zoomInBtn').onclick = () => {
-    scale = Math.min(scale + 0.1, max);
-    updateTransform();
-  };
-
-  document.getElementById('zoomOutBtn').onclick = () => {
-    scale = Math.max(scale - 0.1, min);
-    updateTransform();
-  };
-
-  document.getElementById('resetBtn').onclick = () => {
-    scale = 1; offsetX = 0; offsetY = 0;
-    updateTransform();
-  };
-
-  // 拖曳功能
-  let dragging = false, startX, startY;
-
-  mapInner.addEventListener('mousedown', (e) => {
-    dragging = true;
-    startX = e.clientX - offsetX;
-    startY = e.clientY - offsetY;
-  });
-
-  window.addEventListener('mouseup', () => dragging = false);
-  window.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    offsetX = e.clientX - startX;
-    offsetY = e.clientY - startY;
-    updateTransform();
-  });
-
-  // 點擊點 → 顯示 popup
-  document.querySelectorAll('.dot').forEach(dot => {
+  // 點擊顯示浮窗
+  dots.forEach(dot => {
     dot.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const img = dot.dataset.img;
+      const imgSrc = dot.dataset.img;
       const desc = dot.dataset.desc;
 
-      popupImg.src = img;
-      popupDesc.textContent = desc;
-
-      // 顯示 popup 並計算位置
+      const keyword = searchInput.value.trim();
+      if (keyword.length > 0) {
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        popupDesc.innerHTML = desc.replace(regex, '<span style="background:yellow;">$1</span>');
+      } else {
+        popupDesc.textContent = desc;
+      }
+      popupImg.src = imgSrc;
       popup.style.display = 'block';
-      setTimeout(() => {
-        const rect = popup.getBoundingClientRect();
-        let x = e.clientX + 10;
-        let y = e.clientY + 10;
 
-        if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 10;
-        if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 10;
-
-        popup.style.left = `${x}px`;
-        popup.style.top = `${y}px`;
-      }, 0);
+      let x = e.clientX + 10;
+      let y = e.clientY + 10;
+      if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 10;
+      if (y + popup.offsetHeight > window.innerHeight) y = e.clientY - popup.offsetHeight - 10;
+      popup.style.left = x + 'px';
+      popup.style.top = y + 'px';
     });
   });
 
-  // 隱藏 popup
+  // 關閉浮窗
   window.addEventListener('click', e => {
-    if (!popup.contains(e.target)) popup.style.display = 'none';
+    if (!e.target.classList.contains('dot') && !popup.contains(e.target)) {
+      popup.style.display = 'none';
+    }
   });
-
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') popup.style.display = 'none';
   });
 
   // 搜尋功能
-  const searchInput = document.getElementById('searchInput');
   searchInput.addEventListener('input', () => {
-    const keyword = searchInput.value.trim().toLowerCase();
-    document.querySelectorAll('.dot').forEach(dot => {
-      const match = dot.dataset.desc.toLowerCase().includes(keyword);
-      dot.style.display = match ? 'block' : 'none';
+    const query = searchInput.value.trim().toLowerCase();
+    dots.forEach(dot => {
+      const desc = dot.dataset.desc.toLowerCase();
+      if (query && desc.includes(query)) {
+        dot.style.display = 'block';
+      } else {
+        dot.style.display = query ? 'none' : 'block';
+      }
     });
   });
 
-  // 點擊搜尋欄 Enter 時聚焦第一個結果
-  searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const firstVisible = [...document.querySelectorAll('.dot')].find(dot => dot.style.display !== 'none');
-      if (firstVisible) firstVisible.click();
+  // 手勢縮放 (觸控裝置)
+  let scale = 1;
+  let posX = 0, posY = 0;
+  let startDist = null;
+  let lastTouch = [];
+
+  const updateTransform = () => {
+    mapContainer.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+  }
+
+  mapContainer.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      startDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
     }
+    lastTouch = [...e.touches];
   });
+
+  mapContainer.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && startDist) {
+      const newDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const delta = newDist / startDist;
+      scale *= delta;
+      scale = Math.max(0.5, Math.min(scale, 3));
+      startDist = newDist;
+      updateTransform();
+    } else if (e.touches.length === 1 && lastTouch.length === 1) {
+      const dx = e.touches[0].clientX - lastTouch[0].clientX;
+      const dy = e.touches[0].clientY - lastTouch[0].clientY;
+      posX += dx;
+      posY += dy;
+      updateTransform();
+      lastTouch = [...e.touches];
+    }
+    e.preventDefault();
+  }, { passive: false });
 </script>
 
 </body>
