@@ -62,13 +62,13 @@
       border-radius: 0 0 8px 8px;
     }
     .search-bar {
-      position: absolute;
-      top: 0;
+      position: fixed;
+      bottom: 0;
       left: 0;
       width: 100%;
       background: rgba(255,255,255,0.95);
       padding: 10px;
-      z-index: 200;
+      z-index: 1000;
       box-sizing: border-box;
     }
     .search-bar label {
@@ -83,15 +83,15 @@
 <div class="map-wrapper" id="mapWrapper">
   <div class="map-container" id="mapContainer">
     <img src="平面圖.png" alt="地圖圖" />
-    <div class="search-bar">
-      <label>搜尋店名：</label>
-      <input type="text" id="searchInput" placeholder="輸入關鍵字，如 書店、菸酒、SK" />
-    </div>
   </div>
 </div>
 <div class="popup" id="popup">
   <img src="" id="popup-img" alt="浮窗圖片">
   <p id="popup-desc"></p>
+</div>
+<div class="search-bar">
+  <label>搜尋店名：</label>
+  <input type="text" id="searchInput" placeholder="輸入關鍵字，如 書店、菸酒、SK" />
 </div>
 <script>
   const popup = document.getElementById('popup');
