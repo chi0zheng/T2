@@ -1,74 +1,258 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>T2平面圖</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T2機場平面圖互動版</title>
   <style>
-    body {
-      margin: 0;
-      background: #f0f0f0;
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #333;
+      -webkit-user-select:none; /* 禁止選取 */
+      -moz-user-select:none;
+      -ms-user-select:none;
+      user-select:none;
     }
-
+    .map-wrapper {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      position: relative;
+      background: #333;
+    }
     .map-container {
       position: relative;
-      background: url('平面圖.png') no-repeat;
-      background-size: cover;
-      width: 1280px;
-      height: 720px;
-      margin: 0 auto;
+      width: 1280px;   /* 固定寬度 */
+      height: 720px;   /* 固定高度 */
+      transform-origin: top left;
+      cursor: grab;
+      background: #222;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%) scale(1);
+      left: 0; right: 0;
+      user-select:none;
     }
-
-    .marker {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      background-color: rgba(255, 0, 0, 0.6);
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.2s;
+    .map-container.grabbing {
+      cursor: grabbing;
     }
-
-    .tooltip {
-      position: absolute;
-      display: none;
-      z-index: 99;
-    }
-
-    .tooltip img {
-      width: 30vw;
-      border: 10px solid white;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-      border-radius: 10px;
-    }
-
-    .marker:hover + .tooltip {
+    .map-container img {
+      width: 100%;
+      height: 100%;
       display: block;
+      pointer-events: none;
+      user-select:none;
+    }
+    .dot {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 0, 0, 0.6);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    .dot:hover {
+      background-color: rgba(255, 0, 0, 0.9);
+    }
+    .popup {
+      position: fixed;
+      display: none;
+      width: 90vw;
+      max-width: 400px;
+      border: 6px solid white;
+      box-shadow: 0 0 12px rgba(0,0,0,0.6);
+      background-color: white;
+      z-index: 30;
+      text-align: center;
+      user-select:none;
+      border-radius: 8px;
+    }
+    .popup img {
+      width: 100%;
+      height: auto;
+      border-bottom: 1px solid #ddd;
+      border-radius: 4px 4px 0 0;
+    }
+    /* 浮動內文字大小 */
+    .popup p {
+      margin: 0;
+      padding: 12px;
+      font-size: clamp(14px, 2vw, 18px); /* 14~18px自動縮放 */
+      background: #f4f4f4;
+      color: #333;
+      line-height: 1.4;
+      border-radius: 0 0 8px 8px;
+      user-select:none;
+    }
+    /* 放大縮小控制鍵 */
+    .zoom-controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 40;
+      user-select:none;
+    }
+    .zoom-controls button {
+      font-size: 1.2rem;
+      margin: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border: none;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      transition: background-color 0.2s ease;
+    }
+    .zoom-controls button:hover {
+      background-color: #ddd;
+    }
+    @media (max-width: 768px) {
+      .dot {
+        width: 20px;
+        height: 20px;
+      }
+      .map-container {
+        width: 100vw;
+        height: calc(100vw * 720 / 1280); /* 維持比例 */
+        top: 0;
+        transform: scale(1) translateY(0);
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="map-container">
-  <!-- Marker 1 -->
-  <div class="marker" style="top: 20px; left: 40px;"></div>
-  <div class="tooltip" style="top: 20px; left: 70px;">
-    <img src="img1.jpg" alt="店家1實景">
-  </div>
+<div class="map-wrapper" id="mapWrapper">
+  <div class="map-container" id="mapContainer" style="transform: scale(1)">
+    <img src="平面圖.png" alt="平面圖" draggable="false" />
 
-  <!-- Marker 2 -->
-  <div class="marker" style="top: 20px; left: 140px;"></div>
-  <div class="tooltip" style="top: 20px; left: 170px;">
-    <img src="img2.jpg" alt="店家2實景">
+    <!-- 點的百分比位置計算 = px / 寬度或高度 * 100 -->
+    <div class="dot" style="top:4.86%; left:3.13%" onclick="showPopup(event, 'SG書店.jpg','Day2-六部 SG 書店(桃禮記)')"></div>
+    <div class="dot" style="top:4.86%; left:5.86%" onclick="showPopup(event, 'SI樂高.jpg','Day1-六部 SI 樂高')"></div>
+    <div class="dot" style="top:4.86%; left:8.20%" onclick="showPopup(event, 'SFKT.jpg','Day2-三部 SF KITTY')"></div>
+    <div class="dot" style="top:4.86%; left:13.28%" onclick="showPopup(event, 'SW.jpg','Day1-三部 SW 故宮')"></div>
+    <div class="dot" style="top:4.86%; left:15.63%" onclick="showPopup(event, 'SI食品.jpg','Day1-三部 SI 食品')"></div>
+    <div class="dot" style="top:4.86%; left:17.97%" onclick="showPopup(event, 'SI菸酒.jpg','Day1-三部 SI 菸酒')"></div>
+    <div class="dot" style="top:4.86%; left:25.78%" onclick="showPopup(event,'SC3C.jpg','Day2-六部 SC 野獸國+3C')"></div>
+    <div class="dot" style="top:4.86%; left:28.28%" onclick="showPopup(event,'SI旅精.jpg','Day1-六部 SI 旅遊精品')"></div>
+    <div class="dot" style="top:4.86%; left:31.09%" onclick="showPopup(event,'SF菸酒.jpg','Day2-三部 SF 菸酒')"></div>
+    <div class="dot" style="top:4.86%; left:38.28%" onclick="showPopup(event,'SK.jpg','Day2-二部 SK 藥妝')"></div>
+    <div class="dot" style="top:4.86%; left:40.99%" onclick="showPopup(event,'SH香化.jpg','Day2-二部 SH 香化')"></div>
+    <div class="dot" style="top:4.86%; left:68.98%" onclick="showPopup(event,'SJ菸酒.jpg','Day2-三部 SJ 菸酒')"></div>
+    <div class="dot" style="top:4.86%; left:74.22%" onclick="showPopup(event,'SC運動.jpeg','Day2-六部 SC 運動休閒')"></div>
+    <div class="dot" style="top:4.86%; left:76.56%" onclick="showPopup(event,'SM3C.jpg','Day1-六部 SM 3C店')"></div>
+    <div class="dot" style="top:4.86%; left:79.30%" onclick="showPopup(event,'SM書店.jpg','Day1-六部 SM 書店')"></div>
+    <div class="dot" style="top:4.86%; left:83.98%" onclick="showPopup(event,'SL.jpeg','Day2-二部 SL 藥妝')"></div>
+    <div class="dot" style="top:4.86%; left:86.72%" onclick="showPopup(event,'SH菸酒.jpeg','Day2-三部 SH 菸酒')"></div>
+    <div class="dot" style="top:4.86%; left:91.80%" onclick="showPopup(event,'SR.jpeg','Day1-三部 SR 台灣菸酒館')"></div>
+    <div class="dot" style="top:4.86%; left:94.14%" onclick="showPopup(event,'SN.jpg','Day1-三部 SN 史博+文萃市集')"></div>
   </div>
-
-  <!-- Marker 3 -->
-  <div class="marker" style="top: 20px; left: 240px;"></div>
-  <div class="tooltip" style="top: 20px; left: 270px;">
-    <img src="img3.jpg" alt="店家3實景">
-  </div>
-
-  <!-- 以此類推，加入更多 marker -->
 </div>
+
+<div class="popup" id="popup">
+  <img src="" id="popup-img" alt="浮動圖片" />
+  <p id="popup-desc"></p>
+</div>
+
+<div class="zoom-controls">
+  <button id="zoomInBtn">＋ 放大</button>
+  <button id="zoomOutBtn">－ 縮小</button>
+  <button id="resetBtn">重置</button>
+</div>
+
+<script>
+  const popup = document.getElementById('popup');
+  const popupImg = document.getElementById('popup-img');
+  const popupDesc = document.getElementById('popup-desc');
+  const mapContainer = document.getElementById('mapContainer');
+
+  // 顯示浮動視窗並設定圖片與描述
+  function showPopup(e, imgSrc, desc) {
+    popupImg.src = imgSrc;
+    popupDesc.textContent = desc;
+
+    const popupWidth = popup.offsetWidth || 400; // 近似寬度
+    const popupHeight = popup.offsetHeight || 400; // 近似高度
+    let x = e.clientX + 10;
+    let y = e.clientY + 10;
+
+    if (x + popupWidth > window.innerWidth) {
+      x = e.clientX - popupWidth - 10;
+    }
+    if (y + popupHeight > window.innerHeight) {
+      y = e.clientY - popupHeight - 10;
+    }
+
+    popup.style.left = x + 'px';
+    popup.style.top = y + 'px';
+    popup.style.display = 'block';
+  }
+
+  // 點空白處或 Esc 隱藏浮窗
+  window.addEventListener('click', e => {
+    if (!e.target.classList.contains('dot') && !popup.contains(e.target)) {
+      popup.style.display = 'none';
+    }
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') popup.style.display = 'none';
+  });
+
+  // 放大縮小功能
+  let scale = 1;
+  const scaleStep = 0.1;
+  const scaleMin = 0.5;
+  const scaleMax = 3;
+
+  document.getElementById('zoomInBtn').addEventListener('click', () => {
+    scale = Math.min(scale + scaleStep, scaleMax);
+    updateScale();
+  });
+
+  document.getElementById('zoomOutBtn').addEventListener('click', () => {
+    scale = Math.max(scale - scaleStep, scaleMin);
+    updateScale();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    scale = 1;
+    updateScale();
+  });
+
+  function updateScale() {
+    mapContainer.style.transform = `scale(${scale}) translateY(-50%)`;
+  }
+
+  // 可拖曳地圖 (滑鼠拖動)
+  let isDragging = false;
+  let startX, startY;
+  let currentTranslateX = 0;
+  let currentTranslateY = 0;
+
+  mapContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX - currentTranslateX;
+    startY = e.clientY - currentTranslateY;
+    mapContainer.classList.add('grabbing');
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    mapContainer.classList.remove('grabbing');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    currentTranslateX = e.clientX - startX;
+    currentTranslateY = e.clientY - startY;
+    mapContainer.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${scale}) translateY(-50%)`;
+  });
+
+</script>
 
 </body>
 </html>
