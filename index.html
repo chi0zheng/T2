@@ -38,6 +38,9 @@
       border: 2px solid white;
       z-index: 10;
     }
+    .highlight-dot {
+      background: yellow !important;
+    }
     .popup {
       position: fixed;
       display: none;
@@ -86,12 +89,12 @@
   </div>
 </div>
 <div class="popup" id="popup">
-  <img src="" id="popup-img" alt="浮窗圖片">
+  <img src="" id="popup-img" alt="浮窗圖片" loading="lazy"/>
   <p id="popup-desc"></p>
 </div>
 <div class="search-bar">
   <label>搜尋店名：</label>
-  <input type="text" id="searchInput" placeholder="輸入關鍵字，如 書店、菸酒、SK" />
+  <input type="text" id="searchInput" placeholder="輸入關鍵字，如 日期(DAY1)、部門(三部)、庫別(SD)、書店、菸酒、置物櫃" />
 </div>
 <script>
   const popup = document.getElementById('popup');
@@ -121,23 +124,76 @@
     {top:'4.86%', left:'86.72%', img:'SH菸酒.jpeg', desc:'Day2-三部 SH 菸酒'},
     {top:'4.86%', left:'91.80%', img:'SR.jpeg', desc:'Day1-三部 SR 台灣菸酒館'},
     {top:'4.86%', left:'94.14%', img:'SN.jpg', desc:'Day1-三部 SN 史博+文萃市集'},
+    {top:'30%', left:'8.20%', img:'SA臨時.jpg', desc:'Day2-二部+三部 SA 入境臨時店'},
+    {top:'60%', left:'8.20%', img:'SA兆豐.jpg', desc:'Day2-三部 SA 入境臨時店(兆豐)'},
+    {top:'36%', left:'24%', img:'SA.jpg', desc:'Day2-二部+三部 SA 入境店'},
+    {top:'30%', left:'8.20%', img:'SN.jpg', desc:'Day2-二部+三部 SA 入境臨時店'},
+    {top:'60%', left:'8.20%', img:'SN.jpg', desc:'Day2-三部 SA 入境臨時店(兆豐)'},
+    {top:'36%', left:'24%', img:'SN.jpg', desc:'Day2-二部+三部 SA 入境店'},
+    // 以下為隱藏點
+    {top:'93.5%', left:'23.5%', desc:'Day1-一部 SQ HM 愛馬仕', hidden: true},
+    {top:'79%', left:'23.5%', desc:'Day1-二部 SD 香化 ', hidden: true},
+    {top:'73%', left:'25%', desc:'Day1-三部 SD 食品 ', hidden: true},
+    {top:'79%', left:'36%', desc:'Day1-三部 SD 菸酒巧克力', hidden: true},
+    {top:'87%', left:'36%', desc:'Day1-二部 SD 香化', hidden: true},
+    {top:'61.2%', left:'46%', desc:'Day1-三部 SD 巧克力', hidden: true},
+    {top:'58.6%', left:'50%', desc:'Day1-二部 SQ 香化', hidden: true},
+    {top:'50%', left:'50%', desc:'Day1-一部 SD RV RogerVivier', hidden: true},
+    {top:'45%', left:'50%', desc:'Day1-一部 SD CHLOE', hidden: true},
+    {top:'40%', left:'50%', desc:'Day1-一部 SD Montblanc', hidden: true},
+    {top:'35%', left:'50%', desc:'Day1-一部 SD  世界時區 錶', hidden: true},
+    {top:'66.2%', left:'46%', desc:'Day1-一部 SQ GUCCI GU', hidden: true},
+    {top:'78%', left:'46%', desc:'Day1-三部 SD 菸酒', hidden: true},
+    {top:'87%', left:'46%', desc:'Day1-二部 SD 香化', hidden: true},
+    {top:'65.8%', left:'38.28%', desc:'Day1-預售櫃台 置物櫃', hidden: true},
+    {top:'58.9%', left:'50%', desc:'Day1-二部 SQ 香化', hidden: true},
+    {top:'70.6%', left:'55%', desc:'Day1-二部 SQ DIOR', hidden: true},
+    {top:'75.4%', left:'55%', desc:'Day1-一部 SQ BV', hidden: true},
+    {top:'80%', left:'55%', desc:'Day1-一部 SQ YSL', hidden: true},
+    {top:'61.2%', left:'58%', desc:'商控辦公室', hidden: true},
+    {top:'58.6%', left:'53%', desc:'Day1-一部 SQ Balenciaga 巴黎世家', hidden: true},
+    {top:'50%', left:'53%', desc:'Day1-一部 SD Moncler', hidden: true},
+    {top:'45%', left:'53%', desc:'Day1-一部 SD TODS', hidden: true},
+    {top:'40%', left:'53%', desc:'Day1-一部 SD 高價錶', hidden: true},
+    {top:'35%', left:'53%', desc:'Day1-一部 SD 太陽眼鏡', hidden: true},
+    {top:'20%', left:'53%', desc:'Day2-三部 SJ 台灣大道', hidden: true},
+    {top:'20%', left:'50%', desc:'Day2-一部 SF 05珠寶', hidden: true},
+    {top:'25%', left:'50%', desc:'Day2-一部 SF 14飾品 錶', hidden: true},
+    {top:'20%', left:'66.5%', desc:'Day2-一部 SF 綜合精品 CK BALLY ALLSAINTS(AS) Marc Jacob(MJ)', hidden: true},
+    {top:'20%', left:'74.22%', desc:'員工餐廳 用餐區', hidden: true},
+    {top:'4.86%', left:'43.23%', desc:'Day2-一部 SF Armani', hidden: true},
+    {top:'4.86%', left:'46%', desc:'Day2-一部 SF MUI MUI', hidden: true},
+    {top:'4.86%', left:'49%', desc:'Day2-一部 SF Burberry', hidden: true},
+    {top:'4.86%', left:'56%', desc:'Day2-一部 SF COACH', hidden: true},
+    {top:'4.86%', left:'59%', desc:'Day2-一部 SF Polo Ralph Lauren', hidden: true},
+    {top:'4.86%', left:'61.5%', desc:'Day2-一部 SF Tory Burch', hidden: true},
+    {top:'4.86%', left:'64%', desc:'Day2-一部 SF Longchamp', hidden: true},
+    {top:'4.86%', left:'66.5%', desc:'Day2-一部 SF Victorias Secret 維多利亞的秘密', hidden: true},
+
   ];
 
-  dotsData.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'dot';
-    el.style.top = d.top;
-    el.style.left = d.left;
-    el.dataset.img = d.img;
-    el.dataset.desc = d.desc;
-    mapContainer.appendChild(el);
+   dotsData.forEach(data => {
+    const img = new Image();
+    img.src = data.img;
   });
 
-  const dots = document.querySelectorAll('.dot');
-  dots.forEach(dot => {
+  dotsData.forEach(data => {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.style.top = data.top;
+    dot.style.left = data.left;
+    dot.dataset.img = data.img;
+    dot.dataset.desc = data.desc;
+
+    if (data.hidden) {
+      dot.classList.add('hidden-dot');
+      dot.style.display = 'none';
+    }
+
     dot.addEventListener('click', (e) => {
       const imgSrc = dot.dataset.img;
       const desc = dot.dataset.desc;
+
       const keyword = searchInput.value.trim();
       if (keyword.length > 0) {
         const regex = new RegExp(`(${keyword})`, 'gi');
@@ -145,35 +201,86 @@
       } else {
         popupDesc.textContent = desc;
       }
+
       popupImg.src = imgSrc;
       popup.style.display = 'block';
-    });
-  });
 
-  window.addEventListener('click', e => {
-    if (!e.target.classList.contains('dot') && !popup.contains(e.target)) {
-      popup.style.display = 'none';
-    }
-  });
-  window.addEventListener('keydown', e => {
-    if (e.key === 'Escape') popup.style.display = 'none';
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        popup.style.left = '50%';
+        popup.style.top = '50%';
+        popup.style.transform = 'translate(-50%, -50%)';
+      } else {
+        let x = e.clientX + 10;
+        let y = e.clientY + 10;
+        if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 10;
+        if (y + popup.offsetHeight > window.innerHeight) y = e.clientY - popup.offsetHeight - 10;
+        popup.style.left = x + 'px';
+        popup.style.top = y + 'px';
+        popup.style.transform = '';
+      }
+
+      e.stopPropagation();
+    });
+
+    mapContainer.appendChild(dot);
   });
 
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim().toLowerCase();
-    dots.forEach(dot => {
+    const allDots = document.querySelectorAll('.dot');
+    allDots.forEach(dot => {
       const desc = dot.dataset.desc.toLowerCase();
-      dot.style.display = query && !desc.includes(query) ? 'none' : 'block';
+      const isHidden = dot.classList.contains('hidden-dot');
+      const match = query && desc.includes(query);
+
+      dot.classList.remove('highlight');
+
+      if (match) {
+        dot.style.display = 'block';
+        dot.classList.add('highlight');
+      } else if (isHidden) {
+        dot.style.display = 'none';
+      } else {
+        dot.style.display = query ? 'none' : 'block';
+      }
     });
   });
 
+
+  // 點擊地圖外部關閉 popup
+  window.addEventListener('click', e => {
+    if (!e.target.closest('.dot') && !popup.contains(e.target)) {
+      popup.style.display = 'none';
+    }
+  });
+
+  // Esc 鍵關閉 popup
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') popup.style.display = 'none';
+  });
+
+  // 搜尋處理與標記
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    dots.forEach(dot => {
+      const desc = dot.dataset.desc.toLowerCase();
+      const matched = query && desc.includes(query);
+      dot.style.display = query && !matched ? 'none' : 'block';
+      dot.classList.toggle('highlight-dot', matched);
+    });
+  });
+
+  // 手勢縮放與拖曳
   let scale = 1;
   let posX = 0, posY = 0;
   let startDist = null;
   let lastTouch = [];
+
   const updateTransform = () => {
     mapContainer.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-  }
+  };
+
   mapContainer.addEventListener('touchstart', (e) => {
     if (e.touches.length === 2) {
       startDist = Math.hypot(
@@ -183,6 +290,7 @@
     }
     lastTouch = [...e.touches];
   });
+
   mapContainer.addEventListener('touchmove', (e) => {
     if (e.touches.length === 2 && startDist) {
       const newDist = Math.hypot(
