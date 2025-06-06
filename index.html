@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>T2機場平面圖互動版</title>
+  <title>T2機場平面圖</title>
   <style>
     html, body {
       margin: 0; padding: 0; height: 100%; background-color: #333;
@@ -39,7 +39,7 @@
       z-index: 10;
     }
     .highlight-dot {
-      background: yellow !important;
+      background: BROWN !important;
     }
     .popup {
       position: fixed;
@@ -64,6 +64,19 @@
       background: #f4f4f4; color: #333;
       border-radius: 0 0 8px 8px;
     }
+    /* 浮窗關閉按鈕 */
+    #popup-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #f00;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      z-index: 1000;
+    }
     .search-bar {
       position: fixed;
       bottom: 0;
@@ -85,17 +98,21 @@
 <body>
 <div class="map-wrapper" id="mapWrapper">
   <div class="map-container" id="mapContainer">
-    <img src="平面圖.png" alt="地圖圖" />
+    <img src="平面圖.png" alt="地圖" />
   </div>
 </div>
+
 <div class="popup" id="popup">
+  <button id="popup-close">✕</button>
   <img src="" id="popup-img" alt=" " loading="lazy"/>
   <p id="popup-desc"></p>
 </div>
+
 <div class="search-bar">
-  <label>搜尋店名：</label>
+  <label>搜尋位置：</label>
   <input type="text" id="searchInput" placeholder="輸入關鍵字，如 日期(DAY1)、部門(三部)、庫別(SD)、書店、菸酒、置物櫃" />
 </div>
+
 <script>
   const popup = document.getElementById('popup');
   const popupImg = document.getElementById('popup-img');
@@ -137,7 +154,6 @@
     {top:'79%', left:'36%', desc:'Day1-三部 SD 菸酒巧克力', hidden: true},
     {top:'87%', left:'36%', desc:'Day1-二部 SD 香化', hidden: true},
     {top:'61.2%', left:'46%', desc:'Day1-三部 SD 巧克力', hidden: true},
-    {top:'58.6%', left:'50%', desc:'Day1-二部 SQ 香化', hidden: true},
     {top:'50%', left:'50%', desc:'Day1-一部 SD RV RogerVivier', hidden: true},
     {top:'45%', left:'50%', desc:'Day1-一部 SD CHLOE', hidden: true},
     {top:'40%', left:'50%', desc:'Day1-一部 SD Montblanc', hidden: true},
@@ -169,20 +185,25 @@
     {top:'4.86%', left:'61.5%', desc:'Day2-一部 SF Tory Burch', hidden: true},
     {top:'4.86%', left:'64%', desc:'Day2-一部 SF Longchamp', hidden: true},
     {top:'4.86%', left:'66.5%', desc:'Day2-一部 SF Victorias Secret 維多利亞的秘密', hidden: true},
-
   ];
 
-   dotsData.forEach(data => {
-    const img = new Image();
-    img.src = data.img;
+  // 預載圖片
+  dotsData.forEach(data => {
+    if (data.img) {
+      const img = new Image();
+      img.src = data.img;
+    }
   });
 
+  // 新增點位並加入點擊顯示 popup 動作
   dotsData.forEach(data => {
     const dot = document.createElement('div');
     dot.className = 'dot';
     dot.style.top = data.top;
     dot.style.left = data.left;
-    dot.dataset.img = data.img;
+    if(data.img) {
+      dot.dataset.img = data.img;
+    }
     dot.dataset.desc = data.desc;
 
     if (data.hidden) {
@@ -191,10 +212,9 @@
     }
 
     dot.addEventListener('click', (e) => {
-      const imgSrc = dot.dataset.img;
-      const desc = dot.dataset.desc;
-
+      // 若有搜尋關鍵字則替換文字中關鍵字底色
       const keyword = searchInput.value.trim();
+      const desc = dot.dataset.desc;
       if (keyword.length > 0) {
         const regex = new RegExp(`(${keyword})`, 'gi');
         popupDesc.innerHTML = desc.replace(regex, '<span style="background:yellow;">$1</span>');
@@ -202,9 +222,16 @@
         popupDesc.textContent = desc;
       }
 
-      popupImg.src = imgSrc;
+      // 設定圖片（若有的話）
+      if(dot.dataset.img) {
+        popupImg.src = dot.dataset.img;
+      } else {
+        popupImg.src = "";
+      }
+      
       popup.style.display = 'block';
 
+      // 根據裝置調整 popup 位置
       const isMobile = window.innerWidth <= 768;
       if (isMobile) {
         popup.style.left = '50%';
@@ -213,62 +240,62 @@
       } else {
         let x = e.clientX + 10;
         let y = e.clientY + 10;
-        if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 10;
-        if (y + popup.offsetHeight > window.innerHeight) y = e.clientY - popup.offsetHeight - 10;
+        if (x + popup.offsetWidth > window.innerWidth) {
+          x = e.clientX - popup.offsetWidth - 10;
+        }
+        if (y + popup.offsetHeight > window.innerHeight) {
+          y = e.clientY - popup.offsetHeight - 10;
+        }
         popup.style.left = x + 'px';
         popup.style.top = y + 'px';
         popup.style.transform = '';
       }
-
+      
+      // 阻止冒泡，避免觸發 mapWrapper 的點擊事件自動關閉
       e.stopPropagation();
     });
 
     mapContainer.appendChild(dot);
   });
 
+  // 統一處理搜尋顯示與點位高亮
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim().toLowerCase();
     const allDots = document.querySelectorAll('.dot');
+
     allDots.forEach(dot => {
       const desc = dot.dataset.desc.toLowerCase();
       const isHidden = dot.classList.contains('hidden-dot');
       const match = query && desc.includes(query);
 
-      dot.classList.remove('highlight');
-
+      // 控制顯示與隱藏：若符合搜尋則顯示，不符合則隱藏（但隱藏點繼續隱藏）
       if (match) {
         dot.style.display = 'block';
-        dot.classList.add('highlight');
       } else if (isHidden) {
         dot.style.display = 'none';
       } else {
         dot.style.display = query ? 'none' : 'block';
       }
+      // 高亮匹配關鍵字
+      dot.classList.toggle('highlight-dot', match);
     });
   });
 
-
-  // 點擊地圖外部關閉 popup
-  window.addEventListener('click', e => {
+  // 點擊地圖空白區關閉 popup
+  mapWrapper.addEventListener('click', e => {
     if (!e.target.closest('.dot') && !popup.contains(e.target)) {
       popup.style.display = 'none';
     }
   });
 
-  // Esc 鍵關閉 popup
+  // 按下 Esc 鍵關閉 popup
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') popup.style.display = 'none';
   });
 
-  // 搜尋處理與標記
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.trim().toLowerCase();
-    dots.forEach(dot => {
-      const desc = dot.dataset.desc.toLowerCase();
-      const matched = query && desc.includes(query);
-      dot.style.display = query && !matched ? 'none' : 'block';
-      dot.classList.toggle('highlight-dot', matched);
-    });
+  // 浮動視窗內的關閉按鈕事件
+  document.getElementById('popup-close').addEventListener('click', () => {
+    popup.style.display = 'none';
   });
 
   // 手勢縮放與拖曳
@@ -281,7 +308,11 @@
     mapContainer.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   };
 
+  // 增加 touchstart 事件處理，防止部分 iOS 瀏覽器預設縮放行為
   mapContainer.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
     if (e.touches.length === 2) {
       startDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
@@ -289,7 +320,7 @@
       );
     }
     lastTouch = [...e.touches];
-  });
+  }, { passive: false });
 
   mapContainer.addEventListener('touchmove', (e) => {
     if (e.touches.length === 2 && startDist) {
