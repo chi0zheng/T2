@@ -22,7 +22,7 @@
       position: absolute;
       width: 1280px;
       height: 720px;
-      transform-origin: top left;
+      transform-origin: center center;
       background: #222;
     }
     .map-container img {
@@ -93,6 +93,17 @@
     .search-bar input {
       padding: 6px; font-size: 16px; width: 60%;
     }
+.popup.text-only {
+  display: inline-block;
+  width: auto;
+  max-width: 80vw;
+  padding: 12px;
+  text-align: center;
+}
+
+.popup.text-only p {
+  border-radius: 8px;
+}
   </style>
 </head>
 <body>
@@ -110,7 +121,7 @@
 
 <div class="search-bar">
   <label>搜尋位置：</label>
-  <input type="text" id="searchInput" placeholder="輸入關鍵字，如 日期(DAY1)、部門(三部)、庫別(SD)、書店、菸酒、置物櫃" />
+  <input type="text" id="searchInput" placeholder="輸入關鍵字，如DAY1、三部、SD、書店、置物區" />
 </div>
 
 <script>
@@ -141,12 +152,10 @@
     {top:'4.86%', left:'86.72%', img:'SH菸酒.jpeg', desc:'Day2-三部 SH 菸酒'},
     {top:'4.86%', left:'91.80%', img:'SR.jpeg', desc:'Day1-三部 SR 台灣菸酒館'},
     {top:'4.86%', left:'94.14%', img:'SN.jpg', desc:'Day1-三部 SN 史博+文萃市集'},
+    {top:'36%', left:'24%', img:'SA香化.jpg', desc:'Day2-二部 SA 香化入境店'},
+    {top:'36%', left:'28.28%', img:'SA菸酒.jpg', desc:'Day2-三部 SA 菸酒入境店'},
     {top:'30%', left:'8.20%', img:'SA臨時.jpg', desc:'Day2-二部+三部 SA 入境臨時店'},
     {top:'60%', left:'8.20%', img:'SA兆豐.jpg', desc:'Day2-三部 SA 入境臨時店(兆豐)'},
-    {top:'36%', left:'24%', img:'SA.jpg', desc:'Day2-二部+三部 SA 入境店'},
-    {top:'30%', left:'8.20%', img:'SN.jpg', desc:'Day2-二部+三部 SA 入境臨時店'},
-    {top:'60%', left:'8.20%', img:'SN.jpg', desc:'Day2-三部 SA 入境臨時店(兆豐)'},
-    {top:'36%', left:'24%', img:'SN.jpg', desc:'Day2-二部+三部 SA 入境店'},
     // 以下為隱藏點
     {top:'93.5%', left:'23.5%', desc:'Day1-一部 SQ HM 愛馬仕', hidden: true},
     {top:'79%', left:'23.5%', desc:'Day1-二部 SD 香化 ', hidden: true},
@@ -161,7 +170,7 @@
     {top:'66.2%', left:'46%', desc:'Day1-一部 SQ GUCCI GU', hidden: true},
     {top:'78%', left:'46%', desc:'Day1-三部 SD 菸酒', hidden: true},
     {top:'87%', left:'46%', desc:'Day1-二部 SD 香化', hidden: true},
-    {top:'65.8%', left:'38.28%', desc:'Day1-預售櫃台 置物櫃', hidden: true},
+    {top:'65.8%', left:'38.28%', desc:'Day1-預售櫃台 置物區', hidden: true},
     {top:'58.9%', left:'50%', desc:'Day1-二部 SQ 香化', hidden: true},
     {top:'70.6%', left:'55%', desc:'Day1-二部 SQ DIOR', hidden: true},
     {top:'75.4%', left:'55%', desc:'Day1-一部 SQ BV', hidden: true},
@@ -223,13 +232,16 @@
       }
 
       // 設定圖片（若有的話）
-      if(dot.dataset.img) {
-        popupImg.src = dot.dataset.img;
-      } else {
-        popupImg.src = "";
-      }
-      
-      popup.style.display = 'block';
+if (dot.dataset.img) {
+  popupImg.src = dot.dataset.img;
+  popupImg.style.display = 'block';
+  popup.classList.remove('text-only');
+} else {
+  popupImg.src = "";
+  popupImg.style.display = 'none';
+  popup.classList.add('text-only');
+}
+popup.style.display = 'block';
 
       // 根據裝置調整 popup 位置
       const isMobile = window.innerWidth <= 768;
